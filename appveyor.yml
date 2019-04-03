@@ -3,7 +3,7 @@ build: false
 environment:
   matrix:
     - PYTHON_VERSION: 3.5
-      MINICONDA: C:\Miniconda3
+      MINICONDA: C:\Miniconda3.5
 
 init:
   - "ECHO %PYTHON_VERSION% %MINICONDA%"
@@ -16,7 +16,7 @@ install:
   - "conda create -q -n test-environment python=%PYTHON_VERSION% numpy scipy nose"
   - activate test-environment
   - pip install coverage
-  - pip install -r requirements.txt
+  - conda install --yes --file requirements.txt
 
 test_script:
   - nosetests
