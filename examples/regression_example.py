@@ -1,8 +1,10 @@
 from sklearn import datasets, ensemble
 from sklearn.model_selection import train_test_split
 
+from ceteris_paribus.explainer import explain
 from ceteris_paribus.plots.plots import plot
 from ceteris_paribus.profiles import individual_variable_profile
+from ceteris_paribus.select_data import select_sample, select_neighbours
 
 boston = datasets.load_boston()
 
@@ -25,6 +27,17 @@ def random_forest_regression():
 
 if __name__ == "__main__":
     (model, data, labels, variable_names) = random_forest_regression()
-    cp_profile = individual_variable_profile(model, data, variable_names, X_train[0], y=y_train[0],
-                                             selected_variables=['TAX', 'CRIM'])
-    plot(cp_profile, show_residuals=True)
+    explainer_rf = explain(model, variable_names, data, labels)
+
+    cp_profile = individual_variable_profile(explainer_rf, X_train[0], y=y_train[0], variables=['TAX', 'CRIM'])
+    plot(cp_profile)
+
+    sample = select_sample(X_train, n=3)
+    cp2 = individual_variable_profile(explainer_rf, sample, variables=['TAX', 'CRIM'])
+    plot(cp2)
+
+    neighbours = select_neighbours(X_train, X_train[0], variable_names=variable_names,
+                                   selected_variables=variable_names, n=15)
+    cp3 = individual_variable_profile(explainer_rf, neighbours, variables=['LSTAT', 'RM'],
+                                      variable_splits={'LSTAT': [10, 20, 30], 'RM': [4, 5, 6, 7]})
+    plot(cp3)
